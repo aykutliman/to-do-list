@@ -1,12 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { Field, Form, Formik } from "formik";
 import React from "react";
-import { Formik, Form, Field } from "formik";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { auth } from "../firebase/Firebase";
-import { validationSchema, getErrorMessage } from "./LoginInfo";
+import { useNavigate } from "react-router-dom";
+import useFirebase from "../hooks/useFirebase";
+import { PATHS } from "../router/paths";
+import { getErrorMessage, validationSchema } from "./LoginInfo";
 
 function Login() {
   const initialValues = {
@@ -14,36 +11,27 @@ function Login() {
     password: "",
   };
 
+  const { login, register } = useFirebase();
+
   const navigate = useNavigate();
 
   const handleLogin = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      console.log("Giriş başarılı:", user);
-      navigate("/create-app");
+      await login(email, password);
+      navigate(PATHS.CREATE_APP);
     } catch (error) {
-      console.error("Giriş hatası:", error.message);
+      // console.error(error);
+      console.log(error.code);
       alert(getErrorMessage(error.code));
     }
   };
 
   const handleSignUp = async (email, password) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      console.log("Kullanıcı oluşturuldu ve giriş yapıldı:", user);
-      navigate("/create-app");
+      await register(email, password);
+      navigate(PATHS.CREATE_APP);
     } catch (error) {
-      console.error("Kayıt hatası:", error.message);
+      console.error(error);
       alert(getErrorMessage(error.code));
     }
   };
@@ -63,31 +51,25 @@ function Login() {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ errors, touched, submitCount, values }) => (
+      {({ values }) => (
         <Form className="Login">
           <label>Email</label>
-          <Field type="email" name="email" placeholder="Email giriniz." />
-          {submitCount > 0 && errors.email && touched.email ? (
-            <span className="error-message">{errors.email}</span>
-          ) : (
-            <span className="error-message"></span>
-          )}
-
-          <label>Parola</label>
+          <Field type="email" name="email" placeholder="Enter your email" />
+          <label>Password</label>
           <Field
             type="password"
             name="password"
-            placeholder="Parolanızı giriniz."
+            placeholder="Enter your password"
           />
-          {submitCount > 0 && errors.password && touched.password ? (
-            <span className="error-message">{errors.password}</span>
-          ) : (
-            <span className="error-message"></span>
-          )}
-
-          <button className="loginBtn" type="submit">Giriş Yap</button>
-          <button className="signUpBtn" type="button" onClick={() => handleSignUpClick(values)}>
-            Kaydol
+          <button className="loginBtn" type="submit">
+            Login
+          </button>
+          <button
+            className="signUpBtn"
+            type="button"
+            onClick={() => handleSignUpClick(values)}
+          >
+            Sign Up
           </button>
         </Form>
       )}

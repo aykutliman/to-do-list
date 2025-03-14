@@ -1,32 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase/Firebase";
+import React, { useCallback, useEffect, useState } from "react";
+import useFirebase from "../hooks/useFirebase";
 import Item from "./Item";
 
-function List({ user }) {
+function List() {
+  const { getAll } = useFirebase();
+
   const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    if (!user) return;
+  const getAllTasks = useCallback(async () => {
+    const tasks = await getAll("tasks");
+    setTasks(tasks);
+  }, [getAll]);
 
-    const tasksCollectionRef = collection(db, "users", user.uid, "tasks");
-    const unsubscribe = onSnapshot(tasksCollectionRef, (snapshot) => {
-      const tasksList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTasks(tasksList);
-    });
-    return () => unsubscribe();
-  }, [user]);
+  useEffect(() => {
+    getAllTasks();
+  }, []);
 
   return (
     <div className="tasksList">
-      <label className="tasksLabel">Görevlerim</label>
+      <label className="tasksLabel">Tasks</label>
       {tasks.length > 0 ? (
-        tasks.map((task) => <Item key={task.id} task={task} user={user} />)
+        tasks.map((task) => <Item key={task.id} task={task} />)
       ) : (
-        <p>Henüz bir görev eklenmedi.</p>
+        <p>No tasks yet.</p>
       )}
     </div>
   );
