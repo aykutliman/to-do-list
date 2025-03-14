@@ -2,7 +2,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 body {
@@ -206,7 +207,10 @@ body {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.deleteBtn, .updateBtn, .submitBtn, .cancelBtn {
+.deleteBtn,
+.updateBtn,
+.submitBtn,
+.cancelBtn {
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
   border: none;
@@ -253,13 +257,16 @@ body {
   background-color: #636e72;
 }
 
-.checkbox:checked+label {
+.checkbox:checked + label {
   text-decoration: line-through;
   color: #7f8c8d;
 }
 
 @media (max-width: 768px) {
-  .Login, .CreateApp, .Create, .tasksList {
+  .Login,
+  .CreateApp,
+  .Create,
+  .tasksList {
     margin: 1rem;
     padding: 1.5rem;
   }
@@ -288,7 +295,8 @@ body {
     width: 48%;
   }
 
-  .taskItem .deleteBtn, .taskItem .updateBtn {
+  .taskItem .deleteBtn,
+  .taskItem .updateBtn {
     display: inline-block;
   }
 

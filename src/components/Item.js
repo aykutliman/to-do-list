@@ -1,39 +1,34 @@
 import React, { useState } from "react";
-import { doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/Firebase";
+import useFirebase from "../hooks/useFirebase";
 
-function Item({ task, user }) {
+function Item({ task }) {
   const [editing, setEditing] = useState(false);
   const [updatedTask, setUpdatedTask] = useState(task.task);
 
+  const { remove, update } = useFirebase();
+
   const handleDelete = async () => {
-    if (!user) return;
     try {
-      const taskDocRef = doc(db, "users", user.uid, "tasks", task.id);
-      await deleteDoc(taskDocRef);
+      await remove("tasks", task.id);
     } catch (error) {
-      console.error("Görev silinirken hata oluştu:", error.message);
+      console.error("Task deleted with error:", error.message);
     }
   };
 
   const handleUpdate = async () => {
-    if (!user || updatedTask.trim() === "") return;
     try {
-      const taskDocRef = doc(db, "users", user.uid, "tasks", task.id);
-      await updateDoc(taskDocRef, { task: updatedTask });
+      await update("tasks", task.id, { task: updatedTask });
       setEditing(false);
     } catch (error) {
-      console.error("Görev güncellenirken hata oluştu:", error.message);
+      console.error("Task updated with error:", error.message);
     }
   };
 
   const toggleComplete = async () => {
-    if (!user) return;
     try {
-      const taskDocRef = doc(db, "users", user.uid, "tasks", task.id);
-      await updateDoc(taskDocRef, { completed: !task.completed });
+      await update("tasks", task.id, { completed: !task.completed });
     } catch (error) {
-      console.error("Tamamlama hatası:", error.message);
+      console.error("Completion error:", error.message);
     }
   };
 
@@ -46,7 +41,7 @@ function Item({ task, user }) {
           checked={task.completed}
           onChange={toggleComplete}
         />
-        {task.completed ? "Tamamlandı" : ""}
+        {task.completed ? "Completed" : ""}
       </label>
       {editing ? (
         <>
@@ -57,10 +52,10 @@ function Item({ task, user }) {
             onChange={(e) => setUpdatedTask(e.target.value)}
           />
           <button className="submitBtn" onClick={handleUpdate}>
-            Kaydet
+            Save
           </button>
           <button className="cancelBtn" onClick={() => setEditing(false)}>
-            İptal
+            Cancel
           </button>
         </>
       ) : (
@@ -71,10 +66,10 @@ function Item({ task, user }) {
             {task.task}
           </label>
           <button className="deleteBtn" onClick={handleDelete}>
-            Sil
+            Delete
           </button>
           <button className="updateBtn" onClick={() => setEditing(true)}>
-            Güncelle
+            Update
           </button>
         </>
       )}

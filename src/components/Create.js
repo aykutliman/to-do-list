@@ -1,44 +1,40 @@
 import React, { useState } from "react";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-import { db } from "../firebase/Firebase";
+import useFirebase from "../hooks/useFirebase";
 
-function Create({ user }) {
+function Create() {
   const [newTask, setNewTask] = useState("");
 
-  const handleCreate = async () => {
-    if (newTask.trim() !== "" && user) {
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        await setDoc(userDocRef, { email: user.email }, { merge: true });
+  const { add } = useFirebase();
 
-        const tasksCollectionRef = collection(db, "users", user.uid, "tasks");
-        await addDoc(tasksCollectionRef, {
-          userId: user.uid,
+  const handleCreate = async () => {
+    if (newTask.trim() !== "") {
+      try {
+        await add("tasks", {
           task: newTask,
           completed: false,
-          createAt: new Date(),
+          createdAt: new Date(),
         });
 
         setNewTask("");
       } catch (error) {
-        console.error("Görev eklenirken hata oluştu:", error.message);
-        alert("Görev eklenirken bir hata oluştu: " + error.message);
+        console.error("Task created with error:", error.message);
+        alert("Task created with error: " + error.message);
       }
-    } else if (newTask.trim() === "") {
-      alert("Lütfen görev giriniz!");
+    } else {
+      alert("Please enter a task!");
     }
   };
 
   return (
     <div className="Create">
-      <label>Yeni Görev Oluştur</label>
+      <label>Create New Task</label>
       <input
         type="text"
-        placeholder="Yeni görevinizi yazınız."
+        placeholder="Enter your task."
         value={newTask}
         onChange={(e) => setNewTask(e.target.value)}
       />
-      <button onClick={handleCreate}>Oluştur</button>
+      <button onClick={handleCreate}>Create</button>
     </div>
   );
 }
