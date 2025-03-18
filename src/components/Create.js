@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import useFirebase from "../hooks/useFirebase";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Create() {
   const [newTask, setNewTask] = useState("");
@@ -16,12 +18,13 @@ function Create() {
         });
 
         setNewTask("");
+        toast.success("Task created successfully!");
       } catch (error) {
         console.error("Task created with error:", error.message);
-        alert("Task created with error: " + error.message);
+        toast.error("Task created with error: " + error.message);
       }
     } else {
-      alert("Please enter a task!");
+      toast.warning("Please enter a task!");
     }
   };
 
@@ -35,6 +38,7 @@ function Create() {
         onChange={(e) => setNewTask(e.target.value)}
       />
       <button onClick={handleCreate}>Create</button>
+      <ToastContainer />
     </div>
   );
 }

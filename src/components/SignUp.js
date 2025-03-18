@@ -1,5 +1,5 @@
-import React from "react";
 import { Field, Form, Formik, ErrorMessage } from "formik";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import useFirebase from "../hooks/useFirebase";
 import { PATHS } from "../router/paths";
@@ -7,27 +7,27 @@ import { getErrorMessage, validationSchema } from "./LoginInfo";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function Login() {
+function SignUp() {
   const initialValues = {
     email: "",
     password: "",
   };
 
-  const { login } = useFirebase();
+  const { register } = useFirebase();
   const navigate = useNavigate();
 
-  const handleLogin = async (email, password) => {
+  const handleSignUp = async (email, password) => {
     try {
-      await login(email, password);
+      await register(email, password);
       navigate(PATHS.CREATE_APP);
     } catch (error) {
-      console.log(error.code);
+      console.error(error);
       toast.error(getErrorMessage(error.code));
     }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    await handleLogin(values.email, values.password);
+    await handleSignUp(values.email, values.password);
     setSubmitting(true);
   };
 
@@ -41,19 +41,8 @@ function Login() {
         validateOnChange={false}
       >
         {({ values, errors, touched }) => (
+          //bunun classnamesi Login
           <Form className="Login">
-            <ToastContainer
-              position="top-center"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              style={{ marginTop: "110px" }}
-            />
             <label>Email</label>
             <Field type="email" name="email" placeholder="Enter your email" />
             <ErrorMessage
@@ -72,14 +61,15 @@ function Login() {
               component="div"
               className="error-message"
             />
-            <button className="loginBtn" type="submit">
-              Login
+            <button className="signUpBtn" type="submit">
+              Sign Up
             </button>
           </Form>
         )}
       </Formik>
+      <ToastContainer />
     </>
   );
 }
 
-export default Login;
+export default SignUp;
