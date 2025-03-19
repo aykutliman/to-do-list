@@ -16,19 +16,16 @@ function Login() {
   const { login } = useFirebase();
   const navigate = useNavigate();
 
-  const handleLogin = async (email, password) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await login(email, password);
+      await login(values.email, values.password);
       navigate(PATHS.CREATE_APP);
     } catch (error) {
-      console.log(error.code);
+      console.error(error.code);
       toast.error(getErrorMessage(error.code));
+    } finally {
+      setSubmitting(false);
     }
-  };
-
-  const handleSubmit = async (values, { setSubmitting }) => {
-    await handleLogin(values.email, values.password);
-    setSubmitting(true);
   };
 
   return (
@@ -40,8 +37,8 @@ function Login() {
         validateOnBlur={false}
         validateOnChange={false}
       >
-        {({ values, errors, touched }) => (
-          <Form className="Login">
+        {({ isSubmitting }) => (
+          <Form className="Form">
             <ToastContainer
               position="top-center"
               autoClose={5000}
@@ -52,27 +49,26 @@ function Login() {
               pauseOnFocusLoss
               draggable
               pauseOnHover
-              style={{ marginTop: "110px" }}
+              style={{ marginTop: "80px" }}
             />
+
             <label>Email</label>
             <Field type="email" name="email" placeholder="Enter your email" />
-            <ErrorMessage
-              name="email"
-              component="div"
-              className="error-message"
-            />
+            <div className="error-message">
+              <ErrorMessage name="email" />
+            </div>
+
             <label>Password</label>
             <Field
               type="password"
               name="password"
               placeholder="Enter your password"
             />
-            <ErrorMessage
-              name="password"
-              component="div"
-              className="error-message"
-            />
-            <button className="loginBtn" type="submit">
+            <div className="error-message">
+              <ErrorMessage name="password" />
+            </div>
+
+            <button className="loginBtn" type="submit" disabled={isSubmitting}>
               Login
             </button>
           </Form>

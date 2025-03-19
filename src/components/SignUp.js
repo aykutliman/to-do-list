@@ -1,5 +1,5 @@
-import { Field, Form, Formik, ErrorMessage } from "formik";
 import React from "react";
+import { Field, Form, Formik, ErrorMessage } from "formik";
 import { useNavigate } from "react-router-dom";
 import useFirebase from "../hooks/useFirebase";
 import { PATHS } from "../router/paths";
@@ -16,19 +16,16 @@ function SignUp() {
   const { register } = useFirebase();
   const navigate = useNavigate();
 
-  const handleSignUp = async (email, password) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await register(email, password);
+      await register(values.email, values.password);
       navigate(PATHS.CREATE_APP);
     } catch (error) {
-      console.error(error);
+      console.error(error.code);
       toast.error(getErrorMessage(error.code));
+    } finally {
+      setSubmitting(false);
     }
-  };
-
-  const handleSubmit = async (values, { setSubmitting }) => {
-    await handleSignUp(values.email, values.password);
-    setSubmitting(true);
   };
 
   return (
@@ -40,34 +37,43 @@ function SignUp() {
         validateOnBlur={false}
         validateOnChange={false}
       >
-        {({ values, errors, touched }) => (
-          //bunun classnamesi Login
-          <Form className="Login">
+        {({ isSubmitting }) => (
+          <Form className="Form">
+            <ToastContainer
+              position="top-center"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              style={{ marginTop: "80px" }}
+            />
+
             <label>Email</label>
             <Field type="email" name="email" placeholder="Enter your email" />
-            <ErrorMessage
-              name="email"
-              component="div"
-              className="error-message"
-            />
+            <div className="error-message">
+              <ErrorMessage name="email" />
+            </div>
+
             <label>Password</label>
             <Field
               type="password"
               name="password"
               placeholder="Enter your password"
             />
-            <ErrorMessage
-              name="password"
-              component="div"
-              className="error-message"
-            />
-            <button className="signUpBtn" type="submit">
+            <div className="error-message">
+              <ErrorMessage name="password" />
+            </div>
+
+            <button className="signUpBtn" type="submit" disabled={isSubmitting}>
               Sign Up
             </button>
           </Form>
         )}
       </Formik>
-      <ToastContainer />
     </>
   );
 }

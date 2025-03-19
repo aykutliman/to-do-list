@@ -14,11 +14,15 @@ const Root = () => {
   };
 
   return (
-    <div className="Login">
+    <div className="Root">
       <h1>Welcome</h1>
-      <h3>Please login or sign up</h3>
-      <button className="loginBtn" onClick={handleLoginClick}>Login</button>
-      <button className="signUpBtn" onClick={handleSignUpClick}>Sign Up</button>
+      <h2>Please login or sign up</h2>
+      <button className="loginBtn" onClick={handleLoginClick}>
+        Login
+      </button>
+      <button className="signUpBtn" onClick={handleSignUpClick}>
+        Sign Up
+      </button>
     </div>
   );
 };
