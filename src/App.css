@@ -1,65 +1,86 @@
-* {
+.App {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
-body {
   background-color: #f5f8fa;
   color: #333;
   line-height: 1.6;
+  height: 100vh;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.Login {
+.Root {
+  height: auto;
+  width: 600px;
   max-width: 600px;
   margin: 2rem auto;
-  padding: 2rem;
+  padding: 5rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: left;
   gap: 1rem;
 }
 
-.Login label {
+.Form {
+  height: auto;
+  width: 600px;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: left;
+  gap: 1rem;
+}
+
+.Form label {
   display: block;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   color: #2c3e50;
 }
 
-.Login input {
+.Form input {
   width: 100%;
   padding: 0.8rem 1rem;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 1rem;
   transition: border 0.3s ease;
+  margin-bottom: 0.25rem;
 }
 
-.Login input:focus {
+.Form input:focus {
   border-color: #3498db;
   outline: none;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-.Login button {
+.loginBtn {
+  background-color: #3498db;
+  color: white;
   padding: 0.8rem 1.5rem;
   border: none;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 0.5rem;
-}
-
-.loginBtn {
-  background-color: #3498db;
-  color: white;
+  width: 40rem;
+  height: 3.25rem;
 }
 
 .loginBtn:hover {
@@ -67,6 +88,16 @@ body {
 }
 
 .signUpBtn {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  width: 40rem;
+  height: 3.25rem;
   background-color: #e0e0e0;
   color: #333;
 }
@@ -80,6 +111,7 @@ body {
   font-size: 0.85rem;
   height: 1.2rem;
   display: block;
+  min-height: 1.2rem;
 }
 
 .CreateApp {
@@ -257,66 +289,7 @@ body {
   background-color: #636e72;
 }
 
-.checkbox:checked + label {
+.checkbox:checked+label {
   text-decoration: line-through;
   color: #7f8c8d;
-}
-
-@media (max-width: 768px) {
-  .Login,
-  .CreateApp,
-  .Create,
-  .tasksList {
-    margin: 1rem;
-    padding: 1.5rem;
-  }
-
-  .taskItem {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .taskItem label {
-    margin-bottom: 0.5rem;
-    width: 100%;
-  }
-
-  .taskItem button {
-    margin-top: 0.5rem;
-  }
-
-  .text {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 0.5rem;
-  }
-
-  .taskItem button {
-    width: 48%;
-  }
-
-  .taskItem .deleteBtn,
-  .taskItem .updateBtn {
-    display: inline-block;
-  }
-
-  .taskItem .deleteBtn {
-    margin-right: 4%;
-  }
-
-  .taskItem .submitBtn {
-    margin-right: 4%;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
