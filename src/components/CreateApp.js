@@ -4,7 +4,7 @@ import List from "./List";
 
 function CreateApp() {
   return (
-    <div className="CreateApp">
+    <div className="createApp">
       <Create />
       <List />
     </div>

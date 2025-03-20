@@ -29,7 +29,7 @@ function Create() {
   };
 
   return (
-    <div className="Create">
+    <div className="create">
       <label>Create New Task</label>
       <input
         type="text"
@@ -38,7 +38,18 @@ function Create() {
         onChange={(e) => setNewTask(e.target.value)}
       />
       <button onClick={handleCreate}>Create</button>
-      <ToastContainer />
+      <ToastContainer
+        className="toast-container"
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }

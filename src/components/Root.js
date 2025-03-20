@@ -14,7 +14,7 @@ const Root = () => {
   };
 
   return (
-    <div className="Root">
+    <div className="root">
       <h1>Welcome</h1>
       <h2>Please login or sign up</h2>
       <button className="loginBtn" onClick={handleLoginClick}>
