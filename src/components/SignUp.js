@@ -38,8 +38,8 @@ function SignUp() {
         validateOnChange={false}
       >
         {({ isSubmitting }) => (
-          <Form className="Form">
-            <ToastContainer
+          <Form className="form">
+            <ToastContainer className="toast-container"
               position="top-center"
               autoClose={5000}
               hideProgressBar={false}
@@ -49,7 +49,6 @@ function SignUp() {
               pauseOnFocusLoss
               draggable
               pauseOnHover
-              style={{ marginTop: "80px" }}
             />
 
             <label>Email</label>
