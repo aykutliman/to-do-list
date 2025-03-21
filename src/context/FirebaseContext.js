@@ -5,6 +5,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  setPersistence,
+  browserLocalPersistence, 
 } from "firebase/auth";
 import {
   collection,
@@ -22,6 +24,8 @@ import { FIREBASE_API } from "../config";
 const firebaseApp = initializeApp(FIREBASE_API);
 
 const AUTH = getAuth(firebaseApp);
+
+setPersistence(AUTH, browserLocalPersistence);
 
 const DB = getFirestore(firebaseApp);
 
@@ -62,23 +66,16 @@ FirebaseProvider.propTypes = {
 function FirebaseProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(
-    () =>
-      onAuthStateChanged(AUTH, async (user) => {
-        if (user) {
-          dispatch({
-            type: "INITIALISE",
-            payload: { isAuthenticated: true, user },
-          });
-        } else {
-          dispatch({
-            type: "INITIALISE",
-            payload: { isAuthenticated: false, user: null },
-          });
-        }
-      }),
-    []
-  );
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(AUTH, (user) => {
+      dispatch({
+        type: "INITIALISE",
+        payload: { isAuthenticated: !!user, user },
+      });
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const login = (email, password) =>
     signInWithEmailAndPassword(AUTH, email, password);
