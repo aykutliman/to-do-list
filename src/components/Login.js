@@ -18,8 +18,7 @@ function Login() {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const user = await login(values.email, values.password);
-      localStorage.setItem("user", JSON.stringify(user));
+      await login(values.email, values.password);
       navigate(PATHS.CREATE_APP);
     } catch (error) {
       console.error(error.code);

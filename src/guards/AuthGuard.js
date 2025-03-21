@@ -3,11 +3,13 @@ import useFirebase from "../hooks/useFirebase";
 import { PATHS } from "../router/paths";
 
 function AuthGuard({ children }) {
-  const { isAuthenticated } = useFirebase();
+  const { isAuthenticated, isInitialized } = useFirebase();
 
-  const savedUser = JSON.parse(localStorage.getItem("user"));
+  if (!isInitialized) {
+    return <div>Loading...</div>;
+  }
 
-  if (!isAuthenticated && !savedUser) {
+  if (!isAuthenticated) {
     return <Navigate to={PATHS.LOGIN} />;
   }
 

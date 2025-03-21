@@ -5,6 +5,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
+  setPersistence,
+  browserLocalPersistence, 
 } from "firebase/auth";
 import {
   collection,
@@ -22,6 +24,8 @@ import { FIREBASE_API } from "../config";
 const firebaseApp = initializeApp(FIREBASE_API);
 
 const AUTH = getAuth(firebaseApp);
+
+setPersistence(AUTH, browserLocalPersistence);
 
 const DB = getFirestore(firebaseApp);
 
@@ -64,19 +68,11 @@ function FirebaseProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(AUTH, (user) => {
-      localStorage.user = JSON.stringify(user);
       dispatch({
         type: "INITIALISE",
         payload: { isAuthenticated: !!user, user },
       });
     });
-
-    const savedUser = JSON.parse(localStorage.user);
-    if (savedUser)
-      dispatch({
-        type: "INITIALISE",
-        payload: { isAuthenticated: true, user: savedUser },
-      });
 
     return () => unsubscribe();
   }, []);
@@ -94,8 +90,7 @@ function FirebaseProvider({ children }) {
       });
     });
 
-  const logout = () =>
-    signOut(AUTH).then(() => localStorage.removeItem("user"));
+  const logout = () => signOut(AUTH);
 
   const getAll = async (collectionName) => {
     const docRef = collection(DB, collectionName);

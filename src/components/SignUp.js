@@ -18,8 +18,6 @@ function SignUp() {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const user = await register(values.email, values.password);
-      localStorage.setItem("user", JSON.stringify(user));
       await register(values.email, values.password);
       navigate(PATHS.CREATE_APP);
     } catch (error) {
