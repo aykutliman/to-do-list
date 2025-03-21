@@ -18,7 +18,8 @@ function Login() {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await login(values.email, values.password);
+      const user = await login(values.email, values.password);
+      localStorage.setItem("user", JSON.stringify(user));
       navigate(PATHS.CREATE_APP);
     } catch (error) {
       console.error(error.code);
@@ -39,7 +40,8 @@ function Login() {
       >
         {({ isSubmitting }) => (
           <Form className="form">
-            <ToastContainer className="toast-container"
+            <ToastContainer
+              className="toast-container"
               position="top-center"
               autoClose={5000}
               hideProgressBar={false}

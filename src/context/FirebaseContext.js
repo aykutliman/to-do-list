@@ -62,23 +62,24 @@ FirebaseProvider.propTypes = {
 function FirebaseProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(
-    () =>
-      onAuthStateChanged(AUTH, async (user) => {
-        if (user) {
-          dispatch({
-            type: "INITIALISE",
-            payload: { isAuthenticated: true, user },
-          });
-        } else {
-          dispatch({
-            type: "INITIALISE",
-            payload: { isAuthenticated: false, user: null },
-          });
-        }
-      }),
-    []
-  );
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(AUTH, (user) => {
+      localStorage.user = JSON.stringify(user);
+      dispatch({
+        type: "INITIALISE",
+        payload: { isAuthenticated: !!user, user },
+      });
+    });
+
+    const savedUser = JSON.parse(localStorage.user);
+    if (savedUser)
+      dispatch({
+        type: "INITIALISE",
+        payload: { isAuthenticated: true, user: savedUser },
+      });
+
+    return () => unsubscribe();
+  }, []);
 
   const login = (email, password) =>
     signInWithEmailAndPassword(AUTH, email, password);
@@ -93,7 +94,8 @@ function FirebaseProvider({ children }) {
       });
     });
 
-  const logout = () => signOut(AUTH);
+  const logout = () =>
+    signOut(AUTH).then(() => localStorage.removeItem("user"));
 
   const getAll = async (collectionName) => {
     const docRef = collection(DB, collectionName);

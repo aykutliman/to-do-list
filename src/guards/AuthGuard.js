@@ -5,7 +5,9 @@ import { PATHS } from "../router/paths";
 function AuthGuard({ children }) {
   const { isAuthenticated } = useFirebase();
 
-  if (!isAuthenticated) {
+  const savedUser = JSON.parse(localStorage.getItem("user"));
+
+  if (!isAuthenticated && !savedUser) {
     return <Navigate to={PATHS.LOGIN} />;
   }
 
