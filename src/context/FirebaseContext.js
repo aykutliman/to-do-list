@@ -5,8 +5,6 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
-  setPersistence,
-  browserLocalPersistence, 
 } from "firebase/auth";
 import {
   collection,
@@ -16,17 +14,15 @@ import {
   getFirestore,
   setDoc,
   updateDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import PropTypes from "prop-types";
 import { createContext, useEffect, useReducer } from "react";
 import { FIREBASE_API } from "../config";
 
 const firebaseApp = initializeApp(FIREBASE_API);
-
 const AUTH = getAuth(firebaseApp);
-
-setPersistence(AUTH, browserLocalPersistence);
-
 const DB = getFirestore(firebaseApp);
 
 const initialState = {
@@ -45,7 +41,6 @@ const reducer = (state, action) => {
       user,
     };
   }
-
   return state;
 };
 
@@ -93,9 +88,9 @@ function FirebaseProvider({ children }) {
   const logout = () => signOut(AUTH);
 
   const getAll = async (collectionName) => {
-    const docRef = collection(DB, collectionName);
-
-    const docSnap = await getDocs(docRef);
+    const collectionRef = collection(DB, collectionName);
+    const q = query(collectionRef, where("userId", "==", state.user.uid));
+    const docSnap = await getDocs(q);
 
     return docSnap.docs.map((doc) => ({
       id: doc.id,
@@ -105,19 +100,19 @@ function FirebaseProvider({ children }) {
 
   const add = async (collectionName, data) => {
     const docRef = doc(collection(DB, collectionName));
-
-    await setDoc(docRef, data);
+    await setDoc(docRef, {
+      ...data,
+      userId: state.user.uid,
+    });
   };
 
   const update = async (collectionName, id, data) => {
     const docRef = doc(collection(DB, collectionName), id);
-
     await updateDoc(docRef, data);
   };
 
   const remove = async (collectionName, id) => {
     const docRef = doc(collection(DB, collectionName), id);
-
     await deleteDoc(docRef);
   };
 

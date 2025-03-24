@@ -5,7 +5,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 function Create() {
   const [newTask, setNewTask] = useState("");
-
   const { add } = useFirebase();
 
   const handleCreate = async () => {
