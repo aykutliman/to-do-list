@@ -1,42 +1,62 @@
-import React, { useState } from "react";
+import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import useFirebase from "../hooks/useFirebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Create() {
-  const [newTask, setNewTask] = useState("");
   const { add } = useFirebase();
 
-  const handleCreate = async () => {
-    if (newTask.trim() !== "") {
-      try {
-        await add("tasks", {
-          task: newTask,
-          completed: false,
-          createdAt: new Date(),
-        });
+  const initialValues = {
+    task: "",
+  };
 
-        setNewTask("");
-        toast.success("Task created successfully!");
-      } catch (error) {
-        console.error("Task created with error:", error.message);
-        toast.error("Task created with error: " + error.message);
-      }
-    } else {
-      toast.warning("Please enter a task!");
+  const validationSchema = Yup.object({
+    task: Yup.string()
+      .trim()
+      .min(3, "Task must be at least 3 characters")
+      .required("Please enter a task!"),
+  });
+
+  const handleSubmit = async (values, { resetForm, setSubmitting }) => {
+    try {
+      await add("tasks", {
+        task: values.task,
+        completed: false,
+        createdAt: new Date(),
+      });
+
+      resetForm();
+    } catch (error) {
+      console.error("Task creation error:", error.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="create">
+    <>
       <label>Create New Task</label>
-      <input
-        type="text"
-        placeholder="Enter your task."
-        value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
-      />
-      <button onClick={handleCreate}>Create</button>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+        validateOnBlur={false}
+        validateOnChange={false}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <Field type="text" name="task" placeholder="Enter your task." />
+            <div className="error-message">
+              <ErrorMessage name="task" />
+            </div>
+            <button type="submit" className="createBtn" disabled={isSubmitting}>
+              Create
+            </button>
+          </Form>
+        )}
+      </Formik>
       <ToastContainer
         className="toast-container"
         position="top-center"
@@ -49,7 +69,7 @@ function Create() {
         draggable
         pauseOnHover
       />
-    </div>
+    </>
   );
 }
 

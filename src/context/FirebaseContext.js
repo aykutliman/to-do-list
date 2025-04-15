@@ -10,15 +10,15 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDocs,
   getFirestore,
+  onSnapshot,
+  query,
   setDoc,
   updateDoc,
-  query,
   where,
 } from "firebase/firestore";
 import PropTypes from "prop-types";
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 import { FIREBASE_API } from "../config";
 
 const firebaseApp = initializeApp(FIREBASE_API);
@@ -47,12 +47,14 @@ const reducer = (state, action) => {
 const FirebaseContext = createContext({
   ...initialState,
   method: "firebase",
+  tasks: [],
   login: () => Promise.resolve(),
   register: () => Promise.resolve(),
   logout: () => Promise.resolve(),
+  add: () => Promise.resolve(),
+  update: () => Promise.resolve(),
+  remove: () => Promise.resolve(),
 });
-
-// ----------------------------------------------------------------------
 
 FirebaseProvider.propTypes = {
   children: PropTypes.node,
@@ -60,61 +62,83 @@ FirebaseProvider.propTypes = {
 
 function FirebaseProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [tasks, setTasks] = useState([]);
+  const [taskActions, setTaskActions] = useState({
+    add: () => {},
+    update: () => {},
+    remove: () => {},
+  });
+
+  const createTaskService = (db, userId) => {
+    const getDocRef = (collectionName, id = null) =>
+      id
+        ? doc(collection(db, collectionName), id)
+        : doc(collection(db, collectionName));
+
+    const add = async (collectionName, data) => {
+      const docRef = getDocRef(collectionName);
+      await setDoc(docRef, {
+        ...data,
+        userId,
+      });
+    };
+
+    const update = async (collectionName, id, data) => {
+      const docRef = getDocRef(collectionName, id);
+      await updateDoc(docRef, data);
+    };
+
+    const remove = async (collectionName, id) => {
+      const docRef = getDocRef(collectionName, id);
+      await deleteDoc(docRef);
+    };
+
+    return { add, update, remove };
+  };
+
+  const listenToCollection = (db, collectionName, userId, callback) => {
+    const collectionRef = collection(db, collectionName);
+    const q = query(collectionRef, where("userId", "==", userId));
+    return onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      callback(data);
+    });
+  };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(AUTH, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(AUTH, (user) => {
       dispatch({
         type: "INITIALISE",
         payload: { isAuthenticated: !!user, user },
       });
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
+
+  useEffect(() => {
+    if (!state.user) return;
+
+    const unsubscribe = listenToCollection(
+      DB,
+      "tasks",
+      state.user.uid,
+      setTasks
+    );
+
+    const { add, update, remove } = createTaskService(DB, state.user.uid);
+    setTaskActions({ add, update, remove });
+
+    return () => unsubscribe();
+  }, [state.user]);
 
   const login = (email, password) =>
     signInWithEmailAndPassword(AUTH, email, password);
 
   const register = (email, password) =>
-    createUserWithEmailAndPassword(AUTH, email, password).then(async (res) => {
-      const userRef = doc(collection(DB, "users"), res.user?.uid);
-
-      await setDoc(userRef, {
-        uid: res.user?.uid,
-        email,
-      });
-    });
+    createUserWithEmailAndPassword(AUTH, email, password);
 
   const logout = () => signOut(AUTH);
-
-  const getAll = async (collectionName) => {
-    const collectionRef = collection(DB, collectionName);
-    const q = query(collectionRef, where("userId", "==", state.user.uid));
-    const docSnap = await getDocs(q);
-
-    return docSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  };
-
-  const add = async (collectionName, data) => {
-    const docRef = doc(collection(DB, collectionName));
-    await setDoc(docRef, {
-      ...data,
-      userId: state.user.uid,
-    });
-  };
-
-  const update = async (collectionName, id, data) => {
-    const docRef = doc(collection(DB, collectionName), id);
-    await updateDoc(docRef, data);
-  };
-
-  const remove = async (collectionName, id) => {
-    const docRef = doc(collection(DB, collectionName), id);
-    await deleteDoc(docRef);
-  };
 
   return (
     <FirebaseContext.Provider
@@ -122,13 +146,11 @@ function FirebaseProvider({ children }) {
         ...state,
         method: "firebase",
         user: state.user,
+        tasks,
         login,
         register,
         logout,
-        getAll,
-        add,
-        update,
-        remove,
+        ...taskActions,
       }}
     >
       {children}

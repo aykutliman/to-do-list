@@ -41,7 +41,6 @@ function Item({ task }) {
           checked={task.completed}
           onChange={toggleComplete}
         />
-        {task.completed ? "Completed" : ""}
       </label>
       {editing ? (
         <>
