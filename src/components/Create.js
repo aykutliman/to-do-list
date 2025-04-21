@@ -29,6 +29,7 @@ function Create() {
 
       resetForm();
     } catch (error) {
+      toast.error("Something went wrong: " + error.message);
       console.error("Task creation error:", error.message);
     } finally {
       setSubmitting(false);
@@ -52,7 +53,17 @@ function Create() {
               <ErrorMessage name="task" />
             </div>
             <button type="submit" className="createBtn" disabled={isSubmitting}>
-              Create
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24px"
+                height="24px"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#ff1102"
+                  d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2z"
+                ></path>
+              </svg>
             </button>
           </Form>
         )}

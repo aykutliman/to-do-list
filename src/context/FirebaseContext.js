@@ -7,130 +7,59 @@ import {
   signOut,
 } from "firebase/auth";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   getFirestore,
   onSnapshot,
   query,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
-import PropTypes from "prop-types";
-import { createContext, useEffect, useReducer, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { FIREBASE_API } from "../config";
 
 const firebaseApp = initializeApp(FIREBASE_API);
 const AUTH = getAuth(firebaseApp);
 const DB = getFirestore(firebaseApp);
 
-const initialState = {
-  isAuthenticated: false,
-  isInitialized: false,
-  user: null,
-};
-
-const reducer = (state, action) => {
-  if (action.type === "INITIALISE") {
-    const { isAuthenticated, user } = action.payload;
-    return {
-      ...state,
-      isAuthenticated,
-      isInitialized: true,
-      user,
-    };
-  }
-  return state;
-};
-
-const FirebaseContext = createContext({
-  ...initialState,
-  method: "firebase",
-  tasks: [],
-  login: () => Promise.resolve(),
-  register: () => Promise.resolve(),
-  logout: () => Promise.resolve(),
-  add: () => Promise.resolve(),
-  update: () => Promise.resolve(),
-  remove: () => Promise.resolve(),
-});
-
-FirebaseProvider.propTypes = {
-  children: PropTypes.node,
-};
+const FirebaseContext = createContext({});
 
 function FirebaseProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const [tasks, setTasks] = useState([]);
-  const [taskActions, setTaskActions] = useState({
-    add: () => {},
-    update: () => {},
-    remove: () => {},
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    isInitialized: false,
+    user: null,
   });
 
-  const createTaskService = (db, userId) => {
-    const getDocRef = (collectionName, id = null) =>
-      id
-        ? doc(collection(db, collectionName), id)
-        : doc(collection(db, collectionName));
-
-    const add = async (collectionName, data) => {
-      const docRef = getDocRef(collectionName);
-      await setDoc(docRef, {
-        ...data,
-        userId,
-      });
-    };
-
-    const update = async (collectionName, id, data) => {
-      const docRef = getDocRef(collectionName, id);
-      await updateDoc(docRef, data);
-    };
-
-    const remove = async (collectionName, id) => {
-      const docRef = getDocRef(collectionName, id);
-      await deleteDoc(docRef);
-    };
-
-    return { add, update, remove };
-  };
-
-  const listenToCollection = (db, collectionName, userId, callback) => {
-    const collectionRef = collection(db, collectionName);
-    const q = query(collectionRef, where("userId", "==", userId));
-    return onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      callback(data);
-    });
-  };
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(AUTH, (user) => {
-      dispatch({
-        type: "INITIALISE",
-        payload: { isAuthenticated: !!user, user },
+    const unsubscribe = onAuthStateChanged(AUTH, (user) => {
+      setAuthState({
+        isAuthenticated: !!user,
+        isInitialized: true,
+        user,
       });
     });
 
-    return () => unsubscribeAuth();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!state.user) return;
+    if (!authState.user) return;
 
-    const unsubscribe = listenToCollection(
-      DB,
-      "tasks",
-      state.user.uid,
-      setTasks
-    );
+    const tasksRef = collection(DB, "tasks");
+    const q = query(tasksRef, where("userId", "==", authState.user.uid));
 
-    const { add, update, remove } = createTaskService(DB, state.user.uid);
-    setTaskActions({ add, update, remove });
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setTasks(data);
+    });
 
     return () => unsubscribe();
-  }, [state.user]);
+  }, [authState.user]);
 
   const login = (email, password) =>
     signInWithEmailAndPassword(AUTH, email, password);
@@ -140,17 +69,34 @@ function FirebaseProvider({ children }) {
 
   const logout = () => signOut(AUTH);
 
+  const add = async (collectionName, data) => {
+    await addDoc(collection(DB, collectionName), {
+      ...data,
+      userId: authState.user.uid,
+    });
+  };
+
+  const update = async (collectionName, id, data) => {
+    const docRef = doc(DB, collectionName, id);
+    await updateDoc(docRef, data);
+  };
+
+  const remove = async (collectionName, id) => {
+    const docRef = doc(DB, collectionName, id);
+    await deleteDoc(docRef);
+  };
+
   return (
     <FirebaseContext.Provider
       value={{
-        ...state,
-        method: "firebase",
-        user: state.user,
+        ...authState,
         tasks,
         login,
         register,
         logout,
-        ...taskActions,
+        add,
+        update,
+        remove,
       }}
     >
       {children}
