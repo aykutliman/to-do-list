@@ -39,7 +39,8 @@ function SignUp() {
       >
         {({ isSubmitting }) => (
           <Form className="form">
-            <ToastContainer className="toast-container"
+            <ToastContainer
+              className="toast-container"
               position="top-center"
               autoClose={5000}
               hideProgressBar={false}
