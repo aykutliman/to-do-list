@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import useFirebase from "../hooks/useFirebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Icon } from "@iconify/react";
 
 function Create() {
   const { add } = useFirebase();
@@ -53,17 +54,7 @@ function Create() {
               <ErrorMessage name="task" />
             </div>
             <button type="submit" className="createBtn" disabled={isSubmitting}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24px"
-                height="24px"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="#ff1102"
-                  d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2z"
-                ></path>
-              </svg>
+              <Icon icon="mdi:plus" width="24" height="24" color="#ff1102" />
             </button>
           </Form>
         )}
