@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import useFirebase from "../hooks/useFirebase";
+import { Icon } from "@iconify/react";
 
 function Item({ task }) {
   const [editing, setEditing] = useState(false);
@@ -34,15 +35,12 @@ function Item({ task }) {
 
   return (
     <div className="taskItem">
-      <label>
-        <input
-          className="checkbox"
-          type="checkbox"
-          checked={task.completed}
-          onChange={toggleComplete}
-        />
-        {task.completed ? "Completed" : ""}
-      </label>
+      <input
+        className="checkbox"
+        type="checkbox"
+        checked={task.completed}
+        onChange={toggleComplete}
+      />
       {editing ? (
         <>
           <input
@@ -52,10 +50,10 @@ function Item({ task }) {
             onChange={(e) => setUpdatedTask(e.target.value)}
           />
           <button className="submitBtn" onClick={handleUpdate}>
-            Save
+            <Icon icon="tabler:device-floppy" width="24" height="24" color="#0e9a04" />
           </button>
           <button className="cancelBtn" onClick={() => setEditing(false)}>
-            Cancel
+            <Icon icon="material-symbols:cancel" width="24" height="24" color="#ff0000" />
           </button>
         </>
       ) : (
@@ -66,10 +64,10 @@ function Item({ task }) {
             {task.task}
           </label>
           <button className="deleteBtn" onClick={handleDelete}>
-            Delete
+            <Icon icon="mdi:trash-can" width="24" height="24" color="#ff0909" />
           </button>
           <button className="updateBtn" onClick={() => setEditing(true)}>
-            Update
+            <Icon icon="tabler:edit" width="24" height="24" color="orange" />
           </button>
         </>
       )}

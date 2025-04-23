@@ -16,7 +16,7 @@ export const getErrorMessage = (errorCode) => {
     case "auth/email-already-in-use":
       return "This email address is already in use";
     case "auth/invalid-credential":
-      return "Wrong password or unregistered email.";
+      return "İnvalid credential.";
     default:
       return "An error occurred. Please try again.";
   }

@@ -7,18 +7,18 @@ import { getErrorMessage, validationSchema } from "./LoginInfo";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function Login() {
+function SignUp() {
   const initialValues = {
     email: "",
     password: "",
   };
 
-  const { login } = useFirebase();
+  const { register } = useFirebase();
   const navigate = useNavigate();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      await login(values.email, values.password);
+      await register(values.email, values.password);
       navigate(PATHS.CREATE_APP);
     } catch (error) {
       console.error(error.code);
@@ -68,8 +68,8 @@ function Login() {
               <ErrorMessage name="password" />
             </div>
 
-            <button className="loginBtn" type="submit" disabled={isSubmitting}>
-              Login
+            <button className="signUpBtn" type="submit" disabled={isSubmitting}>
+              Sign Up
             </button>
           </Form>
         )}
@@ -78,4 +78,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;
